@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Login from "./Login.jsx";
 
 // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 const INDIA_LOCATIONS = {
@@ -112,7 +113,11 @@ const RatingBar = ({ label, count, total }) => (
 export default function LocalRateApp() {
   const [page, setPage] = useState("home"); // home | browse | shop | admin | login
   const [shops, setShops] = useState(INITIAL_SHOPS);
-  const [currentUser, setCurrentUser] = useState({ name: "Guest User", phone: "9999999999" });
+    const [currentUser, setCurrentUser] = useState(null);
+
+  if (!currentUser) {
+    return <Login onLogin={(user) => setCurrentUser(user)} />;
+  }
   const [filters, setFilters] = useState({ state: "", city: "", area: "", category: "All", search: "" });
   const [selectedShop, setSelectedShop] = useState(null);
   const [adminTab, setAdminTab] = useState("shops");
