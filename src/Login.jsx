@@ -18,7 +18,7 @@ export default function Login({ onLogin }) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
         "recaptcha-container",
-        { size: "invisible" }
+        { size: "normal" }
       );
     }
   };
