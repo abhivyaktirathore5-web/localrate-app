@@ -14,38 +14,50 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState("");
 
   const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        { size: "normal" }
-      );
+  window.recaptchaVerifier = new RecaptchaVerifier(
+    auth,
+    "recaptcha-container",
+    {
+      size: "normal",
+      callback: () => {},
+      "expired-callback": () => {
+        window.recaptchaVerifier = null;
+      }
     }
-  };
+  );
+  window.recaptchaVerifier.render();
+};
 
   const sendOTP = async () => {
-    if (phone.length !== 10) {
-      setError("Please enter a valid 10-digit phone number");
-      return;
+  if (phone.length !== 10) {
+    setError("Please enter a valid 10-digit phone number");
+    return;
+  }
+  setLoading(true);
+  setError("");
+  try {
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
     }
-    setLoading(true);
-    setError("");
-    try {
-      setupRecaptcha();
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        `+91${phone}`,
-        window.recaptchaVerifier
-      );
-      setConfirm(confirmation);
-      setStep("otp");
-    } catch (err) {
-      setError("Failed to send OTP. Try again.");
-      console.error(err);
+    setupRecaptcha();
+    const confirmation = await signInWithPhoneNumber(
+      auth,
+      `+91${phone}`,
+      window.recaptchaVerifier
+    );
+    setConfirm(confirmation);
+    setStep("otp");
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Failed to send OTP. Try again.");
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
     }
-    setLoading(false);
-  };
-
+  }
+  setLoading(false);
+};
   const verifyOTP = async () => {
     if (otp.length !== 6) {
       setError("Please enter the 6-digit OTP");
