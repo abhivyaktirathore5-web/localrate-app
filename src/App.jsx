@@ -111,19 +111,19 @@ const RatingBar = ({ label, count, total }) => (
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function LocalRateApp() {
-  const [page, setPage] = useState("home"); // home | browse | shop | admin | login
+  const [page, setPage] = useState("home");
   const [shops, setShops] = useState(INITIAL_SHOPS);
-    const [currentUser, setCurrentUser] = useState(null);
-
-  if (!currentUser) {
-    return <Login onLogin={(user) => setCurrentUser(user)} />;
-  }
+  const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({ state: "", city: "", area: "", category: "All", search: "" });
   const [selectedShop, setSelectedShop] = useState(null);
   const [adminTab, setAdminTab] = useState("shops");
   const [toast, setToast] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [photoModal, setPhotoModal] = useState(null);
+
+  if (!currentUser) {
+    return <Login onLogin={(user) => setCurrentUser(user)} />;
+  }
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
