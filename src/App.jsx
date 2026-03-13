@@ -129,7 +129,7 @@ export default function LocalRateApp() {
       localStorage.setItem("localrate_user", JSON.stringify(user));
       setCurrentUser(user);
     }} />;
-  }git
+  }
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
