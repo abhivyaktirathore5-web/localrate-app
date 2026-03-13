@@ -113,7 +113,10 @@ const RatingBar = ({ label, count, total }) => (
 export default function LocalRateApp() {
   const [page, setPage] = useState("home");
   const [shops, setShops] = useState(INITIAL_SHOPS);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem("localrate_user");
+    return saved ? JSON.parse(saved) : null;
+  });
   const [filters, setFilters] = useState({ state: "", city: "", area: "", category: "All", search: "" });
   const [selectedShop, setSelectedShop] = useState(null);
   const [adminTab, setAdminTab] = useState("shops");
@@ -122,8 +125,11 @@ export default function LocalRateApp() {
   const [photoModal, setPhotoModal] = useState(null);
 
   if (!currentUser) {
-    return <Login onLogin={(user) => setCurrentUser(user)} />;
-  }
+    return <Login onLogin={(user) => {
+      localStorage.setItem("localrate_user", JSON.stringify(user));
+      setCurrentUser(user);
+    }} />;
+  }git
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -173,6 +179,19 @@ export default function LocalRateApp() {
         @media (min-width: 769px) { .mobile-menu-btn { display: none !important; } .desktop-nav { display: flex !important; } }
         .star-big { font-size: 36px; cursor: pointer; transition: all 0.15s; color: #e0d6cc; line-height: 1; }
         .star-big:hover, .star-big.active { color: #FF6B2B; transform: scale(1.2); }
+        @media (max-width: 768px) {
+          .grid-2col { grid-template-columns: 1fr !important; }
+          .hide-mobile { display: none !important; }
+          .hero-title { font-size: 1.8rem !important; }
+          .shop-detail-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .admin-table { font-size: 12px !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+       }
+        @media (max-width: 480px) {
+         .hero-padding { padding: 48px 16px !important; }
+         .page-padding { padding: 20px 16px !important; }
+         .card-grid { grid-template-columns: 1fr !important; }
+      }
       `}</style>
 
       {/* NAVBAR */}
@@ -193,7 +212,10 @@ export default function LocalRateApp() {
               <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1206" }}>{currentUser.name}</span>
               <span style={{ fontSize: 11, color: "#aaa" }}>📞 {currentUser.phone}</span>
             </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#FF6B2B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 15 }}>{currentUser.name[0]}</div>
+            <button onClick={() => { localStorage.removeItem("localrate_user"); setCurrentUser(null); }} style={{ background: "none", border: "1px solid #e8ddd4", borderRadius: 8, padding: "5px 10px", fontSize: 12, cursor: "pointer", color: "#888", fontFamily: "inherit" }}>Logout</button>
+            </div>
             <button className="mobile-menu-btn" onClick={() => setMobileMenu(!mobileMenu)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#555" }}>☰</button>
           </div>
         </div>
@@ -426,7 +448,7 @@ function ShopPage({ shop, shops, setShops, currentUser, setPage, setFilters, ope
     <div style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
       <button onClick={() => setPage("browse")} style={{ background: "none", border: "none", cursor: "pointer", color: "#FF6B2B", fontWeight: 600, fontSize: 14, marginBottom: 20, fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>← Back to Browse</button>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+      <div className="shop-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
         {/* LEFT */}
         <div>
           {/* PHOTO GALLERY */}
@@ -608,7 +630,7 @@ function AdminPage({ shops, setShops, showToast, setPhotoModal }) {
       </div>
 
       {/* STATS */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 28 }}>
+      <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 28 }}>
         {[["🏪","Total Shops",shops.length,"#FF6B2B"],["⭐","Total Reviews",totalRatings,"#f59e0b"],["📈","Avg Rating",avgOverall,"#22c55e"],["🗺️","States",new Set(shops.map(s=>s.state)).size,"#3b82f6"]].map(([icon,label,val,col]) => (
           <div key={label} style={{ background: "#fff", borderRadius: 14, padding: "20px 24px", border: "1px solid #f0e8e0", borderLeft: `4px solid ${col}` }}>
             <div style={{ fontSize: 26, marginBottom: 6 }}>{icon}</div>
